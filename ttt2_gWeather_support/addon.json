@@ -1,0 +1,16 @@
+{
+  "title": "[TTT2] gWeather Support",
+  "type": "ServerContent",
+  "tags": [
+    "fun",
+    "roleplay",
+    "realism"
+  ],
+  "ignore": [
+    "*.vmx",
+    "*.prt",
+    "*.log",
+    "*.vmf",
+    "*.lin"
+  ]
+}

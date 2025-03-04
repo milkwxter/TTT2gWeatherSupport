@@ -24,17 +24,52 @@ end
 
 -- variables -----------------------------------------------------------
 ttt2_current_weather = nil
-ttt2_tier1_weathers = {"gw_t1_sunny", "gw_t1_heavyfog", "gw_t2_heavyrain", "gw_t2_haboob", "gw_t3_acidrain"}
+ttt2_tier1_weathers = {"gw_t1_sunny", "gw_t1_warmfront", "gw_t1_cloudy", "gw_t1_partlycloudy", "gw_t1_lightrain", "gw_t1_drought", "gw_t1_quarter_hail", "gw_t1_night", "gw_t1_sleet", "gw_t1_heavyfog", "gw_t1_lightwind", "gw_t1_lightsnow"}
+ttt2_tier2_weathers = {"gw_t1_sunny"}
+ttt2_tier3_weathers = {"gw_t1_sunny"}
+ttt2_tier4_weathers = {"gw_t1_sunny"}
+ttt2_tier5_weathers = {"gw_t1_sunny"}
+ttt2_tier6_weathers = {"gw_t1_sunny"}
 
 -- functions -----------------------------------------------------------
 if SERVER then
 	function ttt2_gWeather_addRandomWeather()
-		-- get rid of current weather if it exists
-		if ttt2_current_weather == nil then
-			ttt2_gWeather_deleteWeather()
+		-- variables
+		local randomNumber = math.random(1, 100)
+		local selectedWeather = "gw_t1_sunny"
+		-- 40%
+		if randomNumber >= 1 and randomNumber <= 40 then
+			selectedWeather = ttt2_tier1_weathers[math.random(1, #ttt2_tier1_weathers)]
+		-- 25%
+		elseif randomNumber >= 41 and randomNumber <= 65 then
+			selectedWeather = ttt2_tier2_weathers[math.random(1, #ttt2_tier2_weathers)]
+		-- 15%
+		elseif randomNumber >= 66 and randomNumber <= 80 then
+			selectedWeather = ttt2_tier3_weathers[math.random(1, #ttt2_tier3_weathers)]
+		-- 10%
+		elseif randomNumber >= 81 and randomNumber <= 90 then
+			selectedWeather = ttt2_tier4_weathers[math.random(1, #ttt2_tier4_weathers)]
+		-- 6%
+		elseif randomNumber >= 91 and randomNumber <= 96 then
+			selectedWeather = ttt2_tier5_weathers[math.random(1, #ttt2_tier5_weathers)]
+		-- 4%
+		elseif randomNumber >= 97 and randomNumber <= 100 then
+			selectedWeather = ttt2_tier6_weathers[math.random(1, #ttt2_tier6_weathers)]
 		end
 		
-		-- get a random tier 1 weather
+		-- epic return statement
+		return selectedWeather
+	end
+	
+	function ttt2_gWeather_addRandomWeather()
+		-- get rid of current weather if it exists
+		if ttt2_current_weather ~= nil then
+			print("[ERROR] Could not add a new weather. Please remove the current weather.")
+			return
+		end
+		
+		-- get a random weather
+		-- USE THE FUCKING FUNCTION
 		local randomWeather = ttt2_tier1_weathers[math.random(1, #ttt2_tier1_weathers)]
 		
 		-- spawn ttt2_current_weather on the map
@@ -58,7 +93,7 @@ if SERVER then
 
 	function ttt2_gWeather_deleteWeather()
 		if ttt2_current_weather ~= nil then
-			-- gweather stuff
+			-- gWeather stuff
 			gWeather:AtmosphereReset()
 			gWeather:RemoveSky()
 			gWeather:RemoveFog()
@@ -67,7 +102,7 @@ if SERVER then
 			ttt2_current_weather:Remove()
 			ttt2_current_weather = nil
 			-- debug
-			print("Deleted current weather!")
+			print("Tried to delete current weather!")
 			-- inform clients
 			net.Start( "ttt2_tell_about_weather" )
 			net.WriteString( "Clear" )
@@ -82,4 +117,8 @@ end
 -- hooks -----------------------------------------------------------
 hook.Add( "TTTPrepareRound", "TTT2_PREPARE_GWEATHER", function()
 	ttt2_gWeather_addRandomWeather()
+end )
+
+hook.Add( "TTTEndRound", "TTT2_END_GWEATHER", function()
+	ttt2_current_weather = nil
 end )

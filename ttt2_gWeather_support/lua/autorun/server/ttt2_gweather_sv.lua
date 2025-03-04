@@ -25,40 +25,50 @@ end
 -- variables -----------------------------------------------------------
 ttt2_current_weather = nil
 ttt2_tier1_weathers = {"gw_t1_sunny", "gw_t1_warmfront", "gw_t1_cloudy", "gw_t1_partlycloudy", "gw_t1_lightrain", "gw_t1_drought", "gw_t1_quarter_hail", "gw_t1_night", "gw_t1_sleet", "gw_t1_heavyfog", "gw_t1_lightwind", "gw_t1_lightsnow"}
-ttt2_tier2_weathers = {"gw_t1_sunny"}
-ttt2_tier3_weathers = {"gw_t1_sunny"}
-ttt2_tier4_weathers = {"gw_t1_sunny"}
-ttt2_tier5_weathers = {"gw_t1_sunny"}
-ttt2_tier6_weathers = {"gw_t1_sunny"}
+ttt2_tier2_weathers = {"gw_t2_heavysnow", "gw_t2_coldfreeze", "gw_t2_coldfront", "gw_t2_tropicalstorm", "gw_t2_golfball_hail", "gw_t2_ashstorm", "gw_t2_heatwave", "gw_t2_moderatewind", "gw_t2_bloodrain", "gw_t2_heavyrain", "gw_t2_haboob"}
+ttt2_tier3_weathers = {"gw_t3_blizzard", "gw_t3_acidrain", "gw_t3_baseball_hail", "gw_t3_extheavyrain", "gw_t3_severewind", "gw_t3_c1hurricane"}
+ttt2_tier4_weathers = {"gw_t4_hurricanewind", "gw_t4_c2hurricane", "gw_t4_derecho", "gw_t4_grapefruit_hail", "gw_t4_supercell"}
+ttt2_tier5_weathers = {"gw_t5_c3hurricane", "gw_t5_mhurricanewind", "gw_t5_downburst", "gw_t5_radiationstorm"}
+ttt2_tier6_weathers = {"gw_t6_firestorm", "gw_t6_c4hurricane", "gw_t6_arcticblast"} -- no unfathomable wind, not fun to play in
+-- no tier 7, are you serious
 
 -- functions -----------------------------------------------------------
 if SERVER then
-	function ttt2_gWeather_addRandomWeather()
+	function ttt2_gWeather_getRandomWeather()
 		-- variables
 		local randomNumber = math.random(1, 100)
 		local selectedWeather = "gw_t1_sunny"
+		local selectedTier = 0
 		-- 40%
 		if randomNumber >= 1 and randomNumber <= 40 then
 			selectedWeather = ttt2_tier1_weathers[math.random(1, #ttt2_tier1_weathers)]
+			selectedTier = 1
 		-- 25%
 		elseif randomNumber >= 41 and randomNumber <= 65 then
 			selectedWeather = ttt2_tier2_weathers[math.random(1, #ttt2_tier2_weathers)]
+			selectedTier = 2
 		-- 15%
 		elseif randomNumber >= 66 and randomNumber <= 80 then
 			selectedWeather = ttt2_tier3_weathers[math.random(1, #ttt2_tier3_weathers)]
+			selectedTier = 3
 		-- 10%
 		elseif randomNumber >= 81 and randomNumber <= 90 then
 			selectedWeather = ttt2_tier4_weathers[math.random(1, #ttt2_tier4_weathers)]
+			selectedTier = 4
 		-- 6%
 		elseif randomNumber >= 91 and randomNumber <= 96 then
 			selectedWeather = ttt2_tier5_weathers[math.random(1, #ttt2_tier5_weathers)]
+			selectedTier = 5
 		-- 4%
 		elseif randomNumber >= 97 and randomNumber <= 100 then
 			selectedWeather = ttt2_tier6_weathers[math.random(1, #ttt2_tier6_weathers)]
+			selectedTier = 6
 		end
 		
 		-- epic return statement
-		return selectedWeather
+		print("[DEBUG] New weather randomly generated: " .. selectedWeather)
+		print("[DEBUG] The tier of the new weather is: " .. selectedTier)
+		return selectedWeather, selectedTier
 	end
 	
 	function ttt2_gWeather_addRandomWeather()
@@ -69,8 +79,7 @@ if SERVER then
 		end
 		
 		-- get a random weather
-		-- USE THE FUCKING FUNCTION
-		local randomWeather = ttt2_tier1_weathers[math.random(1, #ttt2_tier1_weathers)]
+		local randomWeather, weatherTier = ttt2_gWeather_getRandomWeather()
 		
 		-- spawn ttt2_current_weather on the map
 		ttt2_current_weather = ents.Create(randomWeather)
@@ -87,6 +96,7 @@ if SERVER then
 			-- inform clients
 			net.Start( "ttt2_tell_about_weather" )
 			net.WriteString( ttt2_current_weather.PrintName )
+			net.WriteInt( weatherTier, 4 )
 			net.Broadcast()
 		end
 	end
@@ -102,7 +112,7 @@ if SERVER then
 			ttt2_current_weather:Remove()
 			ttt2_current_weather = nil
 			-- debug
-			print("Tried to delete current weather!")
+			print("Deleted current weather!")
 			-- inform clients
 			net.Start( "ttt2_tell_about_weather" )
 			net.WriteString( "Clear" )
@@ -115,10 +125,13 @@ if SERVER then
 end
 
 -- hooks -----------------------------------------------------------
-hook.Add( "TTTPrepareRound", "TTT2_PREPARE_GWEATHER", function()
-	ttt2_gWeather_addRandomWeather()
-end )
+if SERVER then
+	hook.Add( "TTTPrepareRound", "TTT2_PREPARE_GWEATHER", function()
+		ttt2_current_weather = nil
+		ttt2_gWeather_addRandomWeather()
+	end )
 
-hook.Add( "TTTEndRound", "TTT2_END_GWEATHER", function()
-	ttt2_current_weather = nil
-end )
+	hook.Add( "TTTEndRound", "TTT2_END_GWEATHER", function()
+		ttt2_current_weather = nil
+	end )
+end

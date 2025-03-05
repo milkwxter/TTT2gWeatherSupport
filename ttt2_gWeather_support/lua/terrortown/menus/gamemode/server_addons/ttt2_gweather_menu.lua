@@ -50,6 +50,20 @@ function CLGAMEMODESUBMENU:Populate(parent)
 	form2:MakeHelp({
         label = "These settings are for the TTT2 compatibility with gWeather.",
     })
+	form2:MakeSlider({
+        label = "Percent of rounds that have weather enabled",
+        serverConvar = "ttt2_cv_gweather_chance",
+        min = 0,
+        max = 1,
+        decimal = 2,
+    })
+	form2:MakeSlider({
+        label = "Maximum tier of weather enabled. Higher = crazier",
+        serverConvar = "ttt2_cv_gweather_max_tier",
+        min = 1,
+        max = 6,
+        decimal = 0,
+    })
 end
 
 function CLGAMEMODESUBMENU:PopulateButtonPanel(parent)

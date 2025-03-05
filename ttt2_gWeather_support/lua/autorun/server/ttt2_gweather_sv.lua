@@ -22,6 +22,10 @@ if SERVER then
 	end)
 end
 
+-- convars -----------------------------------------------------------
+CreateConVar("ttt2_cv_gweather_chance", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "What percent of rounds will have weather enabled?", 0, 1)
+CreateConVar("ttt2_cv_gweather_max_tier", 6, {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "The maximum tier of allowed weather. Higher tiers get crazier.", 1, 6)
+
 -- variables -----------------------------------------------------------
 ttt2_current_weather = nil
 ttt2_tier1_weathers = {"gw_t1_sunny", "gw_t1_warmfront", "gw_t1_cloudy", "gw_t1_partlycloudy", "gw_t1_lightrain", "gw_t1_drought", "gw_t1_quarter_hail", "gw_t1_night", "gw_t1_sleet", "gw_t1_heavyfog", "gw_t1_lightwind", "gw_t1_lightsnow"}
@@ -35,10 +39,26 @@ ttt2_tier6_weathers = {"gw_t6_firestorm", "gw_t6_c4hurricane", "gw_t6_arcticblas
 -- functions -----------------------------------------------------------
 if SERVER then
 	function ttt2_gWeather_getRandomWeather()
+		-- get max value for randomNumber
+		local randomMax = 100
+		if GetConVar( "ttt2_cv_gweather_max_tier" ):GetInt() == 1 then
+			randomMax = 40;
+		elseif GetConVar( "ttt2_cv_gweather_max_tier" ):GetInt() == 2 then
+			randomMax = 65;
+		elseif GetConVar( "ttt2_cv_gweather_max_tier" ):GetInt() == 3 then
+			randomMax = 80;
+		elseif GetConVar( "ttt2_cv_gweather_max_tier" ):GetInt() == 4 then
+			randomMax = 90;
+		elseif GetConVar( "ttt2_cv_gweather_max_tier" ):GetInt() == 5 then
+			randomMax = 96;
+		end
+		
 		-- variables
-		local randomNumber = math.random(1, 100)
+		local randomNumber = math.random(1, randomMax)
 		local selectedWeather = "gw_t1_sunny"
 		local selectedTier = 0
+		
+		-- weather selection
 		-- 40%
 		if randomNumber >= 1 and randomNumber <= 40 then
 			selectedWeather = ttt2_tier1_weathers[math.random(1, #ttt2_tier1_weathers)]
@@ -66,8 +86,6 @@ if SERVER then
 		end
 		
 		-- epic return statement
-		print("[DEBUG] New weather randomly generated: " .. selectedWeather)
-		print("[DEBUG] The tier of the new weather is: " .. selectedTier)
 		return selectedWeather, selectedTier
 	end
 	
@@ -127,7 +145,12 @@ end
 -- hooks -----------------------------------------------------------
 if SERVER then
 	hook.Add( "TTTPrepareRound", "TTT2_PREPARE_GWEATHER", function()
+		-- clear current weather just in case
 		ttt2_current_weather = nil
+		-- random chance for weather
+		local randomChance = math.random(1, 100)
+		if randomChance < GetConVar( "ttt2_cv_gweather_chance" ):GetInt() then return end
+		-- if we won the random roll, add a weather
 		ttt2_gWeather_addRandomWeather()
 	end )
 

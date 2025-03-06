@@ -1,11 +1,11 @@
 CLGAMEMODESUBMENU.base = "base_gamemodesubmenu"
-CLGAMEMODESUBMENU.title = "gWeather"
+CLGAMEMODESUBMENU.title = "ttt2_gweather_title"
 
 -- actual menu stuff
 function CLGAMEMODESUBMENU:Populate(parent)
-    local form = vgui.CreateTTT2Form(parent, "gWeather Server Settings")
+    local form = vgui.CreateTTT2Form(parent, "ttt2_gweather_form1")
 	form:MakeHelp({
-        label = "General Settings",
+        label = "ttt2_gweather_help1",
     })
 	form:MakeCheckBox({
         label = "Enable Weather Damage to Entities (Players/NPCs)",
@@ -20,7 +20,7 @@ function CLGAMEMODESUBMENU:Populate(parent)
     })
 	
 	form:MakeHelp({
-        label = "Wind Settings",
+        label = "ttt2_gweather_help2",
     })
 	form:MakeCheckBox({
         label = "Enable custom player gWeather wind physics",
@@ -39,16 +39,16 @@ function CLGAMEMODESUBMENU:Populate(parent)
     })
 	
 	form:MakeHelp({
-        label = "Temperature Settings",
+        label = "ttt2_gweather_help3",
     })
 	local temperatureEffectsPlayers = form:MakeCheckBox({
         label = "Should the player experience hypo/hyperthermia from the weather",
         serverConvar = "gw_tempaffect",
     })
 	
-	local form2 = vgui.CreateTTT2Form(parent, "gWeather Compatibility Settings")
+	local form2 = vgui.CreateTTT2Form(parent, "ttt2_gweather_form2")
 	form2:MakeHelp({
-        label = "These settings are for the TTT2 compatibility with gWeather.",
+        label = "ttt2_gweather_help4",
     })
 	form2:MakeSlider({
         label = "Percent of rounds that have weather enabled",
@@ -73,7 +73,6 @@ function CLGAMEMODESUBMENU:PopulateButtonPanel(parent)
     buttonDeleteWeather:SetSize(300, 45)
     buttonDeleteWeather:SetPos(20, 20)
     buttonDeleteWeather.DoClick = function(btn)
-		print("Button clicked, sending net message.")
         net.Start("ttt2_delete_weather")
 		net.SendToServer()
     end
@@ -84,7 +83,6 @@ function CLGAMEMODESUBMENU:PopulateButtonPanel(parent)
     buttonAddRandomWeather:SetSize(300, 45)
     buttonAddRandomWeather:SetPos(340, 20)
     buttonAddRandomWeather.DoClick = function(btn)
-		print("Button clicked, sending net message.")
 		net.Start("ttt2_add_random_weather")
 		net.SendToServer()
     end

@@ -114,7 +114,6 @@ if SERVER then
 			-- inform clients
 			net.Start( "ttt2_tell_about_weather" )
 			net.WriteString( ttt2_current_weather.PrintName )
-			net.WriteInt( weatherTier, 4 )
 			net.Broadcast()
 		end
 	end
@@ -133,7 +132,7 @@ if SERVER then
 			print("Deleted current weather!")
 			-- inform clients
 			net.Start( "ttt2_tell_about_weather" )
-			net.WriteString( "Clear" )
+			net.WriteString( "Map Standard" )
 			net.Broadcast()
 		else
 			-- debug
